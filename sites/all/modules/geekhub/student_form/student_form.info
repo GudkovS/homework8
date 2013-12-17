@@ -1,0 +1,6 @@
+name = Student form
+description = Form to add students
+package = Geekhub
+
+version = "7.x-1.x-dev"
+core = "7.x"
