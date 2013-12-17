@@ -1,0 +1,7 @@
+name = Student list RSS channel
+description = Create RSS list of students
+package = Geekhub
+dependencies[] = student_list
+
+version = "7.x-1.x-dev"
+core = "7.x"

@@ -1,0 +1,59 @@
+<?php
+/**
+* Implements hook_block_info().
+*/
+function slide_show_block_info() {
+$blocks['slide_show'] = array(
+'info' => t('Geekhub: Slide show'),
+'cache' => DRUPAL_NO_CACHE,
+);
+return $blocks;
+}
+
+
+/**
+ * Implements hook_block_view().
+ */
+function slide_show_block_view($delta = '') {
+
+  $block = array();
+
+  if ($delta == 'slide_show') {
+
+    $output = '';
+
+    for ($i = 1; $i <= 5; $i++) {
+
+        $node = node_load($i);
+
+        $image = $node->field_image['und'][0];
+
+          $params = array(
+              'style_name' => 'thumbnail',
+              'path' => $image['uri'],
+              'alt' => $image['alt'],
+              'title' => $image['title'],
+              'attributes' => array('class' => array('image')),
+              'getsize' => FALSE,
+          );
+          //print theme('image_style', $params);
+
+        $output .= '<div class = "kitty-img">' . $node->title . '</br>';
+        $output .= theme('image_style', $params) . '</div>';
+    }
+
+    $block['subject'] = 'Slide show';
+    $block['content'] = $output;
+  }
+
+    //drupal_add_library('system', 'ui.hide');
+    //drupal_add_library('system', 'ui.show');
+
+    drupal_add_js('jQuery(function(){ jQuery("#block-slide-show-slide-show .kitty-img:nth-child(1)").delay( 1000 ).slideUp( 1000 ).delay( 5000 ).fadeIn( 1400 ); });', 'inline');
+    drupal_add_js('jQuery(function(){ jQuery("#block-slide-show-slide-show .kitty-img:nth-child(2)").delay( 2000 ).slideUp( 1000 ).delay( 5000 ).fadeIn( 1400 ); });', 'inline');
+    drupal_add_js('jQuery(function(){ jQuery("#block-slide-show-slide-show .kitty-img:nth-child(3)").delay( 3000 ).slideUp( 1000 ).delay( 5000 ).fadeIn( 1400 ); });', 'inline');
+    drupal_add_js('jQuery(function(){ jQuery("#block-slide-show-slide-show .kitty-img:nth-child(4)").delay( 4000 ).slideUp( 1000 ).delay( 5000 ).fadeIn( 1400 ); });', 'inline');
+    drupal_add_js('jQuery(function(){ jQuery("#block-slide-show-slide-show .kitty-img:nth-child(5)").delay( 5000 ).slideUp( 1000 ).delay( 5000 ).fadeIn( 1400 ); });', 'inline');
+
+  return $block;
+}

@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * Implements hook_menu()
+ */
+function student_rss_menu()
+{
+    $items['student_list/rss.xml'] = array(
+        'title' => 'RSS',
+        'page callback' => 'student_list_rss',
+        'type' => MENU_LOCAL_TASK,
+        'access callback' => TRUE,
+        'weight' => 2,
+    );
+
+    return $items;
+}
+
+function student_list_rss() {
+
+    $items = '';
+
+    // get student info from DB
+    $sub_query = db_select('file_managed', 'fm');
+    $sub_query->fields('fm', array('fid', 'uri'));
+
+    $query = db_select('student_list_data', 'sl');
+    $query->fields('sl', array('document_id', 'pib', 'description', 'birthday_year', 'gender', 'student_group', 'average_score', 'photo_fid'));
+    $query->join($sub_query, 'fm', 'sl.photo_fid=fm.fid');
+    $query->fields('fm', array('fid', 'uri'));
+    $result = $query->execute();
+
+    global $base_url;
+
+    foreach ($result as $student) {
+
+        //обрезаем текст описания до 600 символов
+        $summary = text_summary($student->description, NULL, 600);
+
+        $student_descr = theme('image_style', array(
+                'style_name' => 'thumbnail',
+                'path' => $student->uri,
+                'attributes' => array('class' => array('image')),
+                'getsize' => FALSE,
+            )) . '</br>' . $summary;
+
+        $items .= format_rss_item($student->pib, $base_url . '/student_list', $student_descr);
+    }
+
+    $site_name = variable_get('site_name', 'Drupal');
+    $url = url(('aggregator'), array('absolute' => TRUE));
+    $description = t('@site_name - aggregated student list', array('@site_name' => $site_name));
+
+    $output  = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+    $output .= "<rss version=\"2.0\">\n";
+    $output .= format_rss_channel(t('@site_name aggregator', array('@site_name' => $site_name)), $url, $description, $items);
+    $output .= "</rss>\n";
+
+    print $output;
+}

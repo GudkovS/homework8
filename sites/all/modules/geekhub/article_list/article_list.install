@@ -1,0 +1,8 @@
+<?php
+/**
+ * Implements hook_uninstall().
+ *
+ */
+function article_list_uninstall() {
+  variable_del('article_list_string');
+}

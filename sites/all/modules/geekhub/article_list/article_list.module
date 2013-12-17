@@ -1,0 +1,87 @@
+<?php
+/**
+* Implements hook_block_info().
+*/
+function article_list_block_info() {
+$blocks['article_list'] = array(
+'info' => t('Geekhub: Article list'),
+'cache' => DRUPAL_NO_CACHE,
+);
+return $blocks;
+}
+
+
+/**
+ * Implements hook_block_configure().
+ */
+function article_list_block_configure($delta = '') {
+    // Get the maximum allowed value from the configuration form.
+    $max_to_display = variable_get('article_list_block_max', 10);
+
+    // Add a select box of numbers form 1 to $max_to_display.
+    $form['article_list_block_num'] = array(
+        '#type' => 'select',
+        '#title' => t('Number of articles to show'),
+        '#default_value' => variable_get('article_list_block_num', '5'),
+        '#options' => drupal_map_assoc(range(1, $max_to_display)),
+    );
+
+    $query = db_select('taxonomy_term_data', 't');
+    $query->condition('t.vid', 1);
+    $query->fields('t', array('tid', 'name'));
+    $category_list = $query->execute()->fetchAllKeyed();
+
+    // Add a select box of taxonomy items.
+    $form['article_list_category'] = array(
+        '#type' => 'select',
+        '#title' => t('Articles category to show'),
+        '#options' => $category_list,
+    );
+
+    return $form;
+}
+
+
+/**
+ * Implements hook_block_save().
+ */
+function article_list_block_save($delta = '', $edit = array()) {
+    variable_set('article_list_block_num', $edit['article_list_block_num']);
+    variable_set('article_list_category', $edit['article_list_category']);
+}
+
+
+/**
+ * Implements hook_block_view().
+ */
+function article_list_block_view($delta = '') {
+
+  $block = array();
+
+  if ($delta == 'article_list') {
+
+    $num_articles = variable_get('article_list_block_num', '5');
+    $category = variable_get('article_list_category');
+
+    $output = t('Below are the !num articles:', array('!num' => $num_articles)) . '</p>';
+
+    $subquery = db_select('taxonomy_index', 'ti');
+    $subquery->condition('ti.tid', $category);
+    $subquery->fields('ti', array('nid'));
+
+    $query = db_select('node', 'n');
+    $query->fields('n', array('title'));
+    $query->condition('n.type', 'article');
+    $query->join($subquery, 'ti', 'n.nid=ti.nid');
+    $query->range(0, $num_articles);
+    $result = $query->execute();
+      foreach ($result as $record) {
+         $output .= $record->title . '</br>';
+      }
+
+    $block['subject'] = 'Article list';
+    $block['content'] = $output;
+  }
+
+  return $block;
+}

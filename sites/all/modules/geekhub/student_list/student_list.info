@@ -1,0 +1,6 @@
+name = Student list
+description = Create list of students
+package = Geekhub
+
+version = "7.x-1.x-dev"
+core = "7.x"

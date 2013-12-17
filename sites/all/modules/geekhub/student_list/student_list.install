@@ -1,0 +1,72 @@
+<?php
+/**
+ * Implements hook_schema().
+ */
+function student_list_schema() {
+    $schema['student_list_data'] = array(
+        'description' => 'Student info table',
+        'fields' => array(
+            'document_id' => array(
+                'type' => 'int',
+                'length' => 11,
+                'not null' => TRUE,
+                'description' => 'document_id',
+            ),
+            'pib' => array(
+                'type' => 'varchar',
+                'length' => 128,
+                'not null' => TRUE,
+                'description' => 'pib',
+            ),
+            'description' => array(
+                 'type' => 'text',
+                 'not null' => FALSE,
+                 'description' => 'description',
+            ),
+            'birthday_year' => array(
+                'mysql_type' => 'year',
+                'not null' => TRUE,
+                'description' => 'birthday_year',
+            ),
+            'gender' => array(
+                'type' => 'char',
+                'length' => 1,
+                'not null' => TRUE,
+                'description' => 'Gender',
+            ),
+            'student_group' => array(
+                'type' => 'varchar',
+                'length' => 10,
+                'not null' => FALSE,
+                'description' => 'student group',
+            ),
+            'average_score' => array(
+                'type' => 'float',
+                'not null' => FALSE,
+                'description' => 'average_score',
+            ),
+            'photo_fid' => array(
+                'type' => 'int',
+                'length' => 11,
+                'not null' => FALSE,
+                'description' => 'photo_fid',
+            ),
+    ),
+        'primary key' => array('document_id'),
+    );
+    return $schema;
+}
+
+/**
+ * Implements hook_install()
+ */
+function student_list_install() {
+    drupal_install_schema('student_list');
+}
+
+/**
+ * Implements hook_uninstall()
+ */
+function student_list_uninstall() {
+    drupal_uninstall_schema('student_list');
+}

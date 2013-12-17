@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * Implements hook_menu()
+ */
+function student_list_menu()
+{
+    $items['student_list'] = array(
+        'title' => 'Student list',
+        'page callback' => 'student_list_table',
+        'type' => MENU_NORMAL_ITEM,
+        'access callback' => TRUE,
+    );
+    $items['student_list/default'] = array(
+        'type' => MENU_DEFAULT_LOCAL_TASK,
+        'title' => 'Student list tab',
+        'weight' => 0,
+    );
+
+    return $items;
+}
+
+function student_list_table() {
+    $sub_query = db_select('file_managed', 'fm');
+    $sub_query->fields('fm', array('fid', 'uri'));
+
+    $query = db_select('student_list_data', 'sl');
+    $query->fields('sl', array('document_id', 'pib', 'description', 'birthday_year', 'gender', 'student_group', 'average_score', 'photo_fid'));
+    $query->join($sub_query, 'fm', 'sl.photo_fid=fm.fid');
+    $query->fields('fm', array('fid', 'uri'));
+    $result = $query->execute();
+
+    $header = array('Document id', 'Name',  'Description', 'Birthday year', 'Gender', 'Group', 'Average score', 'Photo');
+    $rows = array();
+
+    foreach ($result as $student) {
+       // dpm($student);
+        $rows[] = array($student->document_id,
+                        $student->pib,
+                        $student->description,
+                        $student->birthday_year,
+                        $student->gender,
+                        $student->student_group,
+                        $student->average_score,
+                        //$student->photo_fid,
+                        theme('image_style', array(
+                            'style_name' => 'thumbnail',
+                            'path' => $student->uri,
+                            'attributes' => array('class' => array('image')),
+                            'getsize' => FALSE,
+                        ))
+        );
+    }
+
+    $output = theme('table', array('header' => $header, 'rows' => $rows));
+
+    return $output;
+}
